@@ -1,11 +1,16 @@
 package com.activity.one.homework;
 
-import java.util.*;
+import com.activity.one.homework.util.RandomGenerator;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 
 public class Homework1 {
 
     static Scanner scanner = new Scanner(System.in);
-    private static String[][] grid;
+    private static String[][] dataTable;
 
     public static void main(String[] args) {
 
@@ -17,26 +22,26 @@ public class Homework1 {
                 System.out.println("Please enter number of columns: ");
                 Integer columns = scanner.nextInt();
                 System.out.println(rows + "x" + columns + "\n");
-                showData(rows, columns);
+                generateDataTable(rows, columns);
                 do {
                     System.out.println("Select options to do (search/print/edit/reset/exit): ");
                     String option = scanner.next();
 
                     switch (option) {
                         case "search" -> {
-                            System.out.println(search());
+                            System.out.println(searchDataTable());
                             flag2 = 0;
                         }
                         case "print" -> {
-                            System.out.println(showData(rows, columns));
+                            System.out.println(printDataTable());
                             flag2 = 0;
                         }
                         case "edit" -> {
-                            System.out.println(edit());
+                            System.out.println(editDataTable());
                             flag2 = 0;
                         }
                         case "reset" -> {
-                            grid = null;
+                            dataTable = null;
                             flag2 = 1;
                         }
                         case "exit" -> System.exit(0);
@@ -50,81 +55,74 @@ public class Homework1 {
 
     }
 
-    private static String getRandom (Integer num) {
-
-        final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                + "0123456789"
-                + "abcdefghijklmnopqrstuvxyz"
-                + "!@#$%^&*_+:|>?<./;'=-";
-        Random rnd = new Random();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < num; i++) {
-            char ranChar = ALPHA_NUMERIC_STRING.charAt(rnd.nextInt(ALPHA_NUMERIC_STRING.length()));
-            sb.append(ranChar);
-        }
-        return sb.toString();
-    }
-
-    private static String showData(Integer rows, Integer columns) {
+    private static void generateDataTable(Integer rows, Integer columns) {
 
         int size = 3;
         String[][] tempArr = new String[rows][columns];
 
-        if (grid != null) {
-            return "Data Table: \n" + Arrays.deepToString(grid);
-        }
-
-        //generate a 2d array with random string
+        //generate a temporary 2d array with random string
         for (int i = 0; i < rows; i++) {
             tempArr[i] = Arrays.stream(new String[columns])
-                    .map(e -> String.format("%3s", getRandom(size)))
+                    .map(e -> String.format("%3s", RandomGenerator.getRandom(size)))
                     .toArray(String[]::new);
         }
-        System.out.println(Arrays.deepToString(tempArr));
 
         //copy tempArr to grid
-        grid = new String[tempArr.length][columns];
+        dataTable = new String[tempArr.length][columns];
         for (int i = 0; i < tempArr.length; i++) {
-            grid[i] = Arrays.copyOf(tempArr[i], tempArr[i].length);
+            dataTable[i] = Arrays.copyOf(tempArr[i], tempArr[i].length);
         }
 
-        return "Data Table: \n" + Arrays.deepToString(grid);
     }
 
-    private static List<String> search() {
+    private static String printDataTable() {
 
-        if (grid == null){
+        String result = "Data Table: \n" + Arrays.deepToString(dataTable)
+                .replace("], ", "]\n")
+                .replace("[[", "[")
+                .replace("]]", "]")
+                .replace("[", " |")
+                .replace("]", " |")
+                .replace(",", " |");
+
+        return result;
+    }
+
+    private static String searchDataTable() {
+
+        if (dataTable == null) {
             throw new NullPointerException("No items in grid table");
         }
 
         System.out.println("Search keyword: ");
         String keyword = scanner.next();
-        long occurrence;
         List<String> occurenceList = new ArrayList<>();
 
+
         //used linear search for algorithm
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                if (grid[i][j].contains(keyword)) {
-                    if (keyword.length() > 1){
-                        occurrence = 1;
-                    } else {
-                        occurrence = Arrays.stream(grid[i][j].split(""))
+        for (int i = 0; i < dataTable.length; i++) {
+            for (int j = 0; j < dataTable[i].length; j++) {
+                if (dataTable[i][j].contains(keyword)) {
+                    long occurrence = 1;
+                    if (keyword.length() == 1) {
+                        occurrence = Arrays.stream(dataTable[i][j].split(""))
                                 .filter(e -> e.equals(keyword)).
                                 count();
                     }
+
                     occurenceList.add(String.format("%s - %o Occurrence",
                             Arrays.toString(new int[]{i, j}),
                             occurrence));
                 }
             }
         }
+        String list = occurenceList.toString().replaceAll("(^\\[|]$)", "");
 
-        return occurenceList;
+        return occurenceList.isEmpty() ? "No Searches" : list;
 
     }
 
-    private static String edit() {
+    private static String editDataTable() {
 
         try {
             System.out.println("Please select row ");
@@ -137,8 +135,8 @@ public class Homework1 {
 //        if (modifyValue.length() > 3) {
 //            return "New Value must be 3 characters only!";
 //        }
-            grid[rows1][columns2] = modifyValue;
-            return "New Data Table: \n" + Arrays.deepToString(grid);
+            dataTable[rows1][columns2] = modifyValue;
+            return printDataTable();
         } catch (Exception e) {
             System.out.println("Wrong Input!");
         }
