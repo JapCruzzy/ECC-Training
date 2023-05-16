@@ -12,6 +12,8 @@ public class Homework2 {
     static Scanner scanner = new Scanner(System.in);
     private static Map<String, String>[][] dataTable;
 
+    private static int columns;
+
     public static void main(String[] args) {
 
         int flag2 = 1;
@@ -20,7 +22,7 @@ public class Homework2 {
                 System.out.println("Please enter number of rows: ");
                 int rows = scanner.nextInt();
                 System.out.println("Please enter number of columns: ");
-                int columns = scanner.nextInt();
+                columns = scanner.nextInt();
                 System.out.println(rows + "x" + columns + "\n");
                 generateDataTable(rows, columns);
                 do {
@@ -50,7 +52,7 @@ public class Homework2 {
                             flag2 = 0;
                         }
                         case "add" -> {
-                            addColumn(rows, columns);
+                            addColumn(rows);
                             flag2 = 0;
                         }
                         case "reset" -> {
@@ -78,19 +80,20 @@ public class Homework2 {
 
         //set 2d array with an empty maps
         Arrays.setAll(tempArr, i -> Arrays.stream(new Map[columns])
-                .map(j -> new HashMap<String, String>())
+                .map(hashMap -> new HashMap<String, String>())
                 .toArray(Map[]::new));
 
         //assign the values inside the map that is inside the 2d array
         Arrays.stream(tempArr)
                 .flatMap(Arrays::stream)
-                .forEach(e -> e.put(RandomGenerator.getRandom(size), RandomGenerator.getRandom(size)));
+                .forEach(map -> map.put(RandomGenerator.getRandom(size), RandomGenerator.getRandom(size)));
 
         //copy tempArr to grid
         dataTable = new Map[tempArr.length][columns];
         for (int i = 0; i < tempArr.length; i++) {
             dataTable[i] = Arrays.copyOf(tempArr[i], tempArr[i].length);
         }
+
 
     }
 
@@ -105,6 +108,19 @@ public class Homework2 {
                 .replace(",", " |")
                 .replace("=", ",");
     }
+
+//    private static Map<String, String> changeValues(Map<String, String>[][] map) {
+//
+//        Map <String, String> tempMap = Collections.emptyMap();
+//        for (int i = 0; i < map.length; i++) {
+//            for (int j = 0; j < map[i].length; j++) {
+//                if (map[i][j] == null) {
+//                    map[i][j] = tempMap;
+//                    return tempMap;
+//                }
+//            }
+//        }
+//    }
 
     private static String searchDataTable() {
 
@@ -121,6 +137,9 @@ public class Homework2 {
             for (int j = 0; j < dataTable[i].length; j++) {
 
                 String replace = dataTable[i][j].toString();
+                if (replace.length() == 2){
+                    break;
+                }
                 String key = replace.substring(1, 4);
                 String value = replace.substring(5, 8);
 
@@ -182,8 +201,8 @@ public class Homework2 {
 //        if (modifyValue.length() > 3) {
 //            return "New Value must be 3 characters only!";
 //        }
-            if (dataTable[rows1][columns2] == null) {
-                throw new RuntimeException("Data is null. You can't edit null Map");
+            if (dataTable[rows1][columns2].isEmpty() || dataTable[rows1][columns2] == null) {
+                throw new RuntimeException("Data is null/empty. You can't edit null/empty Map");
             }
 
             String key = dataTable[rows1][columns2].toString().substring(1, 4);
@@ -257,7 +276,7 @@ public class Homework2 {
         return "Wrong Input";
     }
 
-    private static void addColumn(int rows, int columns) {
+    private static void addColumn(int rows) {
 
         try {
             System.out.println("Identify on which row to add: ");
@@ -271,12 +290,11 @@ public class Homework2 {
 
             //copy current datatable to other temporary array
             Map<String, String>[][] tempTable = new Map[rows][column2];
+            Map <String, String> emptyTempMap = Collections.emptyMap();
+
 
             for (int i = 0; i < dataTable.length; i++) {
                 for (int j = 0; j < dataTable[i].length; j++) {
-                    if (dataTable[i][j] == null) {
-                        throw new RuntimeException("Some of the items in data table are null");
-                    }
                     for (int k = 0; k < tempTable.length; k++) {
                         Map<String, String> collect = dataTable[i][j].entrySet().stream().collect(Collectors
                                 .toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -285,18 +303,26 @@ public class Homework2 {
                         tempTable[row][columns] = map;
                         for (int l = 0; l < tempTable[k].length; l++) {
                             tempTable[i][j] = collect;
+                            if (tempTable[k][l] == null) {
+                                tempTable[k][l] = emptyTempMap;
+                            }
                         }
                     }
+
                 }
             }
+
+            columns = column2;
+
             //copy tempArr to grid
-            dataTable = new Map[tempTable.length][column2];
+            dataTable = new Map[tempTable.length][columns];
             for (int i = 0; i < tempTable.length; i++) {
                 dataTable[i] = Arrays.copyOf(tempTable[i], tempTable[i].length);
             }
 
+
             System.out.println(printDataTable());
-        }catch (InputMismatchException e){
+        } catch (InputMismatchException e){
             System.out.println("Wrong Input! Try Again!");
         }
 
