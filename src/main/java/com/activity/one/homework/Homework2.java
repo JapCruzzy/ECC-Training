@@ -109,19 +109,6 @@ public class Homework2 {
                 .replace("=", ",");
     }
 
-//    private static Map<String, String> changeValues(Map<String, String>[][] map) {
-//
-//        Map <String, String> tempMap = Collections.emptyMap();
-//        for (int i = 0; i < map.length; i++) {
-//            for (int j = 0; j < map[i].length; j++) {
-//                if (map[i][j] == null) {
-//                    map[i][j] = tempMap;
-//                    return tempMap;
-//                }
-//            }
-//        }
-//    }
-
     private static String searchDataTable() {
 
         if (dataTable == null) {
@@ -137,7 +124,7 @@ public class Homework2 {
             for (int j = 0; j < dataTable[i].length; j++) {
 
                 String replace = dataTable[i][j].toString();
-                if (replace.length() == 2){
+                if (replace.length() == 2) {
                     break;
                 }
                 String key = replace.substring(1, 4);
@@ -198,9 +185,6 @@ public class Homework2 {
             System.out.println("New Value: ");
             String modifyValue = scanner.next();
 
-//        if (modifyValue.length() > 3) {
-//            return "New Value must be 3 characters only!";
-//        }
             if (dataTable[rows1][columns2].isEmpty() || dataTable[rows1][columns2] == null) {
                 throw new RuntimeException("Data is null/empty. You can't edit null/empty Map");
             }
@@ -208,13 +192,13 @@ public class Homework2 {
             String key = dataTable[rows1][columns2].toString().substring(1, 4);
             String value = dataTable[rows1][columns2].toString().substring(5, 8);
 
-            if (keyOrValue.equalsIgnoreCase("key")) {
-                dataTable[rows1][columns2].remove(key);
-                dataTable[rows1][columns2].put(modifyValue, value);
-
-            }
-            if (keyOrValue.equalsIgnoreCase("value")) {
-                dataTable[rows1][columns2].put(key, modifyValue);
+            switch (keyOrValue.toLowerCase()) {
+                case "key" -> {
+                    dataTable[rows1][columns2].remove(key);
+                    dataTable[rows1][columns2].put(modifyValue, value);
+                }
+                case "value" -> dataTable[rows1][columns2].put(key, modifyValue);
+                default -> System.out.println("Wrong Input. Start Over!");
             }
 
             return printDataTable();
@@ -222,7 +206,7 @@ public class Homework2 {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "Wrong Input! Start Over!";
+        return "";
     }
 
     private static String sortDataTable() {
@@ -236,6 +220,7 @@ public class Homework2 {
             System.out.println("(Asc)ending or (Desc)ending?: ");
             String sort = scanner.next();
 
+            //Ascending
             if (sort.equalsIgnoreCase("asc") || sort.equalsIgnoreCase("ascending")) {
                 for (int i = 0; i < dataTable.length; i++) {
                     for (int j = 0; j < dataTable[i].length; j++) {
@@ -251,6 +236,7 @@ public class Homework2 {
                         }
                     }
                 }
+                //Descending
             } else {
                 for (int i = 0; i < dataTable.length; i++) {
                     for (int j = 0; j < dataTable[i].length; j++) {
@@ -290,7 +276,7 @@ public class Homework2 {
 
             //copy current datatable to other temporary array
             Map<String, String>[][] tempTable = new Map[rows][column2];
-            Map <String, String> emptyTempMap = Collections.emptyMap();
+            Map<String, String> emptyTempMap = Collections.emptyMap();
 
 
             for (int i = 0; i < dataTable.length; i++) {
@@ -322,7 +308,7 @@ public class Homework2 {
 
 
             System.out.println(printDataTable());
-        } catch (InputMismatchException e){
+        } catch (InputMismatchException e) {
             System.out.println("Wrong Input! Try Again!");
         }
 
